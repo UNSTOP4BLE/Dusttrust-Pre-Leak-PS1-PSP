@@ -3,9 +3,7 @@ An unofficial Dusttrust remake on the og PlayStation
 
 cant say much about this project, just got bored
 
-here's the credits
-
-Files what i used for making this from: https://github.com/cuckydev/PSXFunkin
+The files what i used for making this: https://github.com/cuckydev/PSXFunkin
 
 ## Credits
 Dusttrust created by Sawsk
