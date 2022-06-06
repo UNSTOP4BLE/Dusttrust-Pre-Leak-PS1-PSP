@@ -20,6 +20,7 @@
 #include "../loadscr.h"
 
 int timershit = 0;
+int bump = 0;
 
 static struct
 {
@@ -27,14 +28,27 @@ static struct
 	struct
 	{
 		fixed_t x, y, zoom;
+		fixed_t tx, ty, tzoom, speed;
 	} camera;
 } battle;
 
 
 static void Battle_Camera_Tick(void)
 {
-	int aa = smooth(timershit);
-	battle.camera.zoom = FIXED_DEC(2,1) + (FIXED_DEC(1,1000) * smooth(timershit));
+	fixed_t dx = battle.camera.tx - battle.camera.x;
+	fixed_t dy = battle.camera.ty - battle.camera.y;
+	fixed_t dz = battle.camera.tzoom - battle.camera.zoom;
+	
+	battle.camera.x += FIXED_MUL(dx, battle.camera.speed);
+	battle.camera.y += FIXED_MUL(dy, battle.camera.speed);
+	battle.camera.zoom += FIXED_MUL(dz, battle.camera.speed);
+	
+	bump += 1;
+	if (bump > 64)
+	{
+		battle.camera.zoom = FIXED_DEC(12,10);
+		bump = 0;
+	}
 }
 
 void Battle_DrawTex(Gfx_Tex *tex, const RECT *src, const RECT *dst)
@@ -70,8 +84,12 @@ void Battle_Load(void)
 	Audio_SetVolume(1, 0x0000, 0x3FFF);
 	
 	battle.camera.x = 0;
-	battle.camera.y = 0;
-	battle.camera.zoom = FIXED_DEC(1,1);
+	battle.camera.y = 40;
+	battle.camera.zoom = FIXED_DEC(0,1);
+	battle.camera.tx = 0;
+	battle.camera.ty = 40;
+	battle.camera.tzoom = FIXED_DEC(1,1);
+	battle.camera.speed = FIXED_UNIT / 24;
 }
 
 void Battle_Tick(void)
