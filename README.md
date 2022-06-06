@@ -7,10 +7,13 @@ here's the credits
 
 Files what i used for making this from: https://github.com/cuckydev/PSXFunkin
 
+## Credits
 Dusttrust created by Sawsk
-DustTrust owned by Nickolas And Co-Owned by Ari
 
-Dusttrust Pre-Leak by Ari
+DustTrust owned by Nickolas, Co-Owned by Ari
+
+Pre-Leak by Ari
+
 Sprite by GOing42
-Music by Nickolas
-https://soundcloud.com/dusttrustpreleak/003a-homicidal-lunacy
+
+Music by Nickolas https://soundcloud.com/dusttrustpreleak/003a-homicidal-lunacy
