@@ -1,0 +1,9 @@
+all: \
+	iso/font/arial.tim \
+	iso/sprites/dtsans.tim \
+
+iso/%.tim: iso/%.png
+	tools/funkintimconv/funkintimconv $@ $<
+
+iso/%.arc:
+	tools/funkinarcpak/funkinarcpak $@ $^
