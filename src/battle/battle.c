@@ -26,7 +26,7 @@ u8 bump = 0;
 
 static struct
 {
-	Gfx_Tex tex_hud, tex_dtsans;
+	Gfx_Tex tex_hud;
 	struct
 	{
 		fixed_t x, y, zoom;
