@@ -23,6 +23,7 @@
 
 			<!-- Sprites -->
 			<dir name = "sprites">
+				<file name = "battle.tim" type = "data" source = "iso/sprites/battle.tim"/>
 				<file name = "dtsans.tim" type = "data" source = "iso/sprites/dtsans.tim"/>
 			</dir>	
 

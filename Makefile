@@ -14,6 +14,7 @@ SRCS = src/main.c \
        src/psx/pad.c \
        src/psx/timer.c \
        src/battle/battle.c \
+       src/chars/dtsans1.c \
        mips/common/crt0/crt0.s
 
 CPPFLAGS += -Wall -Wextra -pedantic -mno-check-zero-division

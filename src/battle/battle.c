@@ -19,19 +19,60 @@
 
 #include "../loadscr.h"
 
-int timershit = 0;
-int bump = 0;
+#include "../chars/dtsans1.h"
+
+u8 timershit = 0;
+u8 bump = 0;
 
 static struct
 {
-	Gfx_Tex tex_dtsans;
+	Gfx_Tex tex_hud, tex_dtsans;
 	struct
 	{
 		fixed_t x, y, zoom;
 		fixed_t tx, ty, tzoom, speed;
 	} camera;
+	struct
+	{
+		fixed_t x, y, xsize, ysize;
+		fixed_t tx, ty, txsize, tysize;
+		fixed_t speed;
+	} box;
+	
 } battle;
 
+static void Battle_Box(void)
+{
+	fixed_t dx = battle.box.tx - battle.box.x;
+	fixed_t dy = battle.box.ty - battle.box.y;
+	fixed_t dxsize = battle.box.txsize - battle.box.xsize;
+	fixed_t dysize = battle.box.tysize - battle.box.ysize;
+	
+	battle.box.x += FIXED_MUL(dx, battle.box.speed);
+	battle.box.y += FIXED_MUL(dy, battle.box.speed);
+	battle.box.xsize += FIXED_MUL(dxsize, battle.box.speed);
+	battle.box.ysize += FIXED_MUL(dysize, battle.box.speed);
+	
+	battle.box.txsize = 200 + (smooth(timershit * 1.7) / 10);
+	
+	RECT box2_src = {248, 0, 2, 2};
+	RECT box2_dst = {
+		battle.box.x,
+		battle.box.y,
+		battle.box.xsize,
+		battle.box.ysize
+	};
+	Battle_DrawTexRotate(&battle.tex_hud, &box2_src, &box2_dst, smooth(timershit) / 50, box2_dst.w / 2, box2_dst.h / 2);
+
+	RECT box_src = {248, 8, 2, 2};
+	RECT box_dst = {
+		battle.box.x,
+		battle.box.y,
+		battle.box.xsize + 4,
+		battle.box.ysize + 4
+	};
+	Battle_DrawTexRotate(&battle.tex_hud, &box_src, &box_dst, smooth(timershit) / 50, box_dst.w / 2, box_dst.h / 2);
+}
 
 static void Battle_Camera_Tick(void)
 {
@@ -46,7 +87,7 @@ static void Battle_Camera_Tick(void)
 	bump += 1;
 	if (bump > 64)
 	{
-		battle.camera.zoom = FIXED_DEC(12,10);
+		battle.camera.zoom += FIXED_DEC(1,20);
 		bump = 0;
 	}
 }
@@ -74,9 +115,10 @@ void Battle_DrawTexRotate(Gfx_Tex *tex, const RECT *src, const RECT *dst, u8 ang
 
 void Battle_Load(void)
 {
-	Gfx_SetClear(0, 0, 0);
+	Gfx_SetClear(50, 50, 50);
 	
-	Gfx_LoadTex(&battle.tex_dtsans, IO_Read("\\SPRITES\\DTSANS.TIM;1"), GFX_LOADTEX_FREE);
+	Gfx_LoadTex(&battle.tex_hud, IO_Read("\\SPRITES\\BATTLE.TIM;1"), GFX_LOADTEX_FREE);
+	Load_Sans();
 	
 	Audio_LoadMus("\\MUSIC\\PHASE1.MUS;1");
 	Audio_PlayMus(true);
@@ -84,12 +126,22 @@ void Battle_Load(void)
 	Audio_SetVolume(1, 0x0000, 0x3FFF);
 	
 	battle.camera.x = 0;
-	battle.camera.y = 40;
-	battle.camera.zoom = FIXED_DEC(0,1);
+	battle.camera.y = 0;
+	battle.camera.zoom = FIXED_DEC(1,1);
 	battle.camera.tx = 0;
-	battle.camera.ty = 40;
+	battle.camera.ty = 0;
 	battle.camera.tzoom = FIXED_DEC(1,1);
 	battle.camera.speed = FIXED_UNIT / 24;
+	
+	battle.box.x = 0;
+	battle.box.y = 0;
+	battle.box.xsize = 60;
+	battle.box.ysize = 60;
+	battle.box.tx = 0;
+	battle.box.ty = 64;
+	battle.box.txsize = 316;
+	battle.box.tysize = 60;
+	battle.box.speed = FIXED_UNIT / 32;
 }
 
 void Battle_Tick(void)
@@ -98,92 +150,10 @@ void Battle_Tick(void)
 	Battle_Camera_Tick();
 	
 	timershit += 2;
-	
-	int sansposx = 0;
-	int sansposy = 0;
-	
-	
-	//Hoodies stems
-	RECT hoodstrems_src = {63, 114, 19, 16};
-	RECT hoodstrems_dst = {
-		sansposx + 5,
-		sansposy - 26 - (smooth(timershit) / 250),
-		19,
-		16
-	};
-	Battle_DrawTexRotate(&battle.tex_dtsans, &hoodstrems_src, &hoodstrems_dst, -smooth((timershit * 1.5) + 80) / 200, 14, 1);
-	
-	//Torso
-	RECT torso_src = {36, 77, 53, 36};
-	RECT torso_dst = {
-		sansposx - 7,
-		sansposy - 19 - (smooth(timershit) / 250),
-		53,
-		36
-	};
-	Battle_DrawTexRotate(&battle.tex_dtsans, &torso_src, &torso_dst, 0, torso_dst.w / 2, torso_dst.h);
-	
-	//Head
-	RECT head_src = {81, 135, 36, 32};
-	RECT head_dst = {
-		sansposx,
-		sansposy - 44 - (smooth(timershit) / 250),
-		36,
-		32
-	};
-	Battle_DrawTexRotate(&battle.tex_dtsans, &head_src, &head_dst, smooth(timershit + 25) / 240, head_dst.w / 2, head_dst.h);
-	
-	//Left Arm
-	RECT leftarm_src = {7, 80, 28, 33};
-	RECT leftarm_dst = {
-		sansposx - 25,
-		sansposy - 48 - (smooth(timershit) / 250),
-		28,
-		33
-	};
-	Battle_DrawTexRotate(&battle.tex_dtsans, &leftarm_src, &leftarm_dst, -smooth(timershit + 50) / 200, 18, 0);
-	
-	//Right Arm
-	RECT rightarm_src = {1, 138, 79, 49};
-	RECT rightarm_dst = {
-		sansposx + 13,
-		sansposy - 46 - (smooth(timershit) / 250),
-		79,
-		49
-	};
-	Battle_DrawTexRotate(&battle.tex_dtsans, &rightarm_src, &rightarm_dst, -smooth(timershit + 50) / 200, 39, 29);
-	
-	//Legs
-	RECT legs_src = {1, 114, 61, 23};
-	RECT legs_dst = {
-		sansposx,
-		sansposy,
-		61,
-		23 + (smooth(timershit) / 250)
-	};
-	Battle_DrawTexRotate(&battle.tex_dtsans, &legs_src, &legs_dst, 0, legs_dst.w / 2, legs_dst.h);
-	
-	//Hoodies back
-	RECT hoodsback_src = {90, 114, 71, 20};
-	RECT hoodsback_dst = {
-		(sansposx - 20) - (smooth(timershit + 100) / 300),
-		sansposy - 26 - (smooth(timershit) / 250),
-		71 + (smooth(timershit + 100) / 300),
-		20
-	};
-	Battle_DrawTexRotate(&battle.tex_dtsans, &hoodsback_src, &hoodsback_dst, -smooth((timershit + 100) * 2) / 300, 30, 1);
-
-	//cape
-	RECT cape_src = {90, 77, 61, 36};
-	RECT cape_dst = {
-		(sansposx - 25) - (smooth(timershit + 100) / 200),
-		sansposy - 48 - (smooth(timershit) / 250),
-		61 + (smooth(timershit + 100) / 200),
-		36
-	};
-	Battle_DrawTexRotate(&battle.tex_dtsans, &cape_src, &cape_dst, smooth((timershit + 25) * 1.2) / 200, 38, 1);
+	Draw_Sans();
+	Battle_Box();
 }
-
+	
 void Battle_Unload(void)
 {
 	Gfx_SetClear(0, 0, 0);
