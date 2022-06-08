@@ -21,7 +21,7 @@
 
 #include "../chars/dtsans1.h"
 
-u8 timershit = 0;
+int timershit = 0;
 u8 bump = 0;
 
 static struct
@@ -38,8 +38,43 @@ static struct
 		fixed_t tx, ty, txsize, tysize;
 		fixed_t speed;
 	} box;
-	
+	struct
+	{
+		fixed_t x, y, angle;
+		fixed_t speed;
+	} soul;
 } battle;
+
+static void Soul(void)
+{
+	if (pad_state.held & PAD_UP)
+		battle.soul.y -= battle.soul.speed;
+	if (pad_state.held & PAD_DOWN)
+		battle.soul.y += battle.soul.speed;
+	if (pad_state.held & PAD_LEFT)
+		battle.soul.x -= battle.soul.speed;
+	if (pad_state.held & PAD_RIGHT)
+		battle.soul.x += battle.soul.speed;
+	
+	if(battle.soul.y < battle.box.y + (-battle.box.ysize / 2) + 4)
+		battle.soul.y = battle.box.y + (-battle.box.ysize / 2) + 4;
+	if(battle.soul.y > battle.box.y + (battle.box.ysize / 2) - 4)
+		battle.soul.y = battle.box.y + (battle.box.ysize / 2) - 4;
+	if(battle.soul.x < battle.box.x + (-battle.box.xsize / 2) + 4)
+		battle.soul.x = battle.box.x + (-battle.box.xsize / 2) + 4;
+	if(battle.soul.x > battle.box.x + (battle.box.xsize / 2) - 3)
+		battle.soul.x = battle.box.x + (battle.box.xsize / 2) - 3;
+	
+	
+	RECT soul_src = {225, 0, 8, 8};
+	RECT soul_dst = {
+		battle.soul.x,
+		battle.soul.y,
+		8,
+		8
+	};
+	Battle_DrawTexRotate(&battle.tex_hud, &soul_src, &soul_dst, 0, 4, 4);
+}
 
 static void Battle_Box(void)
 {
@@ -53,7 +88,9 @@ static void Battle_Box(void)
 	battle.box.xsize += FIXED_MUL(dxsize, battle.box.speed);
 	battle.box.ysize += FIXED_MUL(dysize, battle.box.speed);
 	
-	battle.box.txsize = 200 + (smooth(timershit * 1.7) / 10);
+	//battle.box.txsize = 200 + (smooth(timershit * 1.7) / 10);
+	battle.box.x = (smooth((timershit + 64) * 1.7) / 50);
+	battle.box.y = 54 + (smooth((timershit + 0) * 1.7) / 50);
 	
 	RECT box2_src = {248, 0, 2, 2};
 	RECT box2_dst = {
@@ -62,7 +99,7 @@ static void Battle_Box(void)
 		battle.box.xsize,
 		battle.box.ysize
 	};
-	Battle_DrawTexRotate(&battle.tex_hud, &box2_src, &box2_dst, smooth(timershit) / 50, box2_dst.w / 2, box2_dst.h / 2);
+	Battle_DrawTexRotate(&battle.tex_hud, &box2_src, &box2_dst, 0, box2_dst.w / 2, box2_dst.h / 2);
 
 	RECT box_src = {248, 8, 2, 2};
 	RECT box_dst = {
@@ -71,7 +108,7 @@ static void Battle_Box(void)
 		battle.box.xsize + 4,
 		battle.box.ysize + 4
 	};
-	Battle_DrawTexRotate(&battle.tex_hud, &box_src, &box_dst, smooth(timershit) / 50, box_dst.w / 2, box_dst.h / 2);
+	Battle_DrawTexRotate(&battle.tex_hud, &box_src, &box_dst, 0, box_dst.w / 2, box_dst.h / 2);
 }
 
 static void Battle_Camera_Tick(void)
@@ -85,7 +122,7 @@ static void Battle_Camera_Tick(void)
 	battle.camera.zoom += FIXED_MUL(dz, battle.camera.speed);
 	
 	bump += 1;
-	if (bump > 64)
+	if (bump > 60)
 	{
 		battle.camera.zoom += FIXED_DEC(1,20);
 		bump = 0;
@@ -142,6 +179,10 @@ void Battle_Load(void)
 	battle.box.txsize = 316;
 	battle.box.tysize = 60;
 	battle.box.speed = FIXED_UNIT / 32;
+	
+	battle.soul.x = 0;
+	battle.soul.y = 0;
+	battle.soul.speed = 1;
 }
 
 void Battle_Tick(void)
@@ -151,6 +192,7 @@ void Battle_Tick(void)
 	
 	timershit += 2;
 	Draw_Sans();
+	Soul();
 	Battle_Box();
 }
 	
