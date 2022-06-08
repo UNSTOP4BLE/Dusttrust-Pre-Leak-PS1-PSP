@@ -1,34 +1,33 @@
-/*
+	/*
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
 #include "battle.h"
-
-#include "../mem.h"
 #include "../main.h"
-#include "../timer.h"
-#include "../io.h"
-#include "../gfx.h"
-#include "../audio.h"
-#include "../pad.h"
-#include "../archive.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <pspdebug.h>
+#include <pspkernel.h>
+#include <psputility.h>
+#include "../glib2d.h"
+#include "../psp/triWav.h"
+#include "../psp/triLog.h"
+#include "../psp/triMemory.h"
+#include "../psp/triInput.h"
 #include "../mutil.h"
-#include "../random.h"
-
-#include "../loadscr.h"
+#include "../fixed.h"
 
 #include "../chars/dtsans1.h"
 
 int timershit = 0;
-u8 bump = 0;
+int bump = 0;
 
 static struct
 {
-	Gfx_Tex tex_hud;
+	//Gfx_Tex tex_hud;
 	struct
-	{
 		fixed_t x, y, zoom;
 		fixed_t tx, ty, tzoom, speed;
 	} camera;

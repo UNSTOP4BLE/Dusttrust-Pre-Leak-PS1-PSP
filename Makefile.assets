@@ -1,3 +1,0 @@
-all:
-	@ $(MAKE) -f Makefile.tim
-	@ $(MAKE) -f Makefile.mus

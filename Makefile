@@ -1,47 +1,30 @@
-TARGET = dusttrust
-TYPE = ps-exe
-
-SRCS = src/main.c \
+TARGET = FlappyBirdPSP
+OBJS = src/main.c \
        src/mutil.c \
-       src/random.c \
-       src/archive.c \
-       src/font.c \
-       src/loadscr.c \
-       src/psx/psx.c \
-       src/psx/io.c \
-       src/psx/gfx.c \
-       src/psx/audio.c \
-       src/psx/pad.c \
-       src/psx/timer.c \
+	   src/psp/triInput.o \
+	   src/psp/triAudioLib.o \
+	   src/psp/triMemory.o \
+	   src/psp/triRefcount.o \
+	   src/psp/triWav.o \
        src/battle/battle.c \
        src/chars/dtsans1.c \
-       mips/common/crt0/crt0.s
+	   src/glib2d.o 
 
-CPPFLAGS += -Wall -Wextra -pedantic -mno-check-zero-division
-LDFLAGS += -Wl,--start-group
-# TODO: remove unused libraries
-LDFLAGS += -lapi
-#LDFLAGS += -lc
-LDFLAGS += -lc2
-#LDFLAGS += -lcard
-LDFLAGS += -lcd
-#LDFLAGS += -lcomb
-LDFLAGS += -lds
-LDFLAGS += -letc
-LDFLAGS += -lgpu
-#LDFLAGS += -lgs
-#LDFLAGS += -lgte
-#LDFLAGS += -lgun
-#LDFLAGS += -lhmd
-#LDFLAGS += -lmath
-#LDFLAGS += -lmcrd
-#LDFLAGS += -lmcx
-LDFLAGS += -lpad
-LDFLAGS += -lpress
-#LDFLAGS += -lsio
-LDFLAGS += -lsnd
-LDFLAGS += -lspu
-#LDFLAGS += -ltap
-LDFLAGS += -flto -Wl,--end-group
+LIBS = -ljpeg -lpng -lz -lpspgum -lpspgu -lpsprtc -lm -lpspvram -lpspaudio -lpspmp3
 
-include mips/common.mk
+CFLAGS = -O2 -G0 -Wall -g -fno-builtin-printf
+CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
+ASFLAGS = $(CFLAGS)
+
+# PSP JUNK
+PSP_FW_VERSION = 500
+PSP_LARGE_MEMORY = 1
+
+EXTRA_TARGETS = EBOOT.PBP
+PSP_EBOOT_TITLE = DT PSP
+PSP_EBOOT_ICON = ICON0.PNG
+PSP_EBOOT_PIC1 = PIC1.PNG
+
+
+PSPSDK=$(shell psp-config --pspsdk-path)
+include $(PSPSDK)/lib/build.mak 

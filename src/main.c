@@ -6,14 +6,39 @@
 
 #include "main.h"
 
-#include "timer.h"
-#include "io.h"
-#include "gfx.h"
-#include "audio.h"
-#include "pad.h"
-
+#include <stdlib.h>
+#include <stdio.h>
+#include <pspdebug.h>
+#include <pspkernel.h>
+#include <psputility.h>
+#include "glib2d.h"
+#include "psp/triWav.h"
+#include "psp/triLog.h"
+#include "psp/triMemory.h"
+#include "psp/triInput.h"
 #include "battle/battle.h"
 
+PSP_MODULE_INFO("Flappy Bird PSP", 0, 1, 0);
+
+int exit_callback(int arg1, int arg2, void* common) {
+    sceKernelExitGame();
+    return 0;
+}
+
+int callbackthread(SceSize args, void* argp) {
+    int cbid = sceKernelCreateCallback("Exit Callback", exit_callback, NULL);
+    sceKernelRegisterExitCallback(cbid);
+
+    sceKernelSleepThreadCB();
+    return 0;
+}
+
+void setupcallbacks() {
+    int thid =sceKernelCreateThread("update_thread", callbackthread, 0x11, 0xFA0, 0, NULL );
+    if (thid >= 0){
+        sceKernelStartThread(thid, 0, NULL);
+    }
+}
 //Game loop
 GameLoop gameloop;
 
@@ -24,66 +49,36 @@ void ErrorLock(void)
 {
 	while (1)
 	{
-		#ifdef PSXF_PC
-			MsgPrint(error_msg);
-			exit(1);
-		#else
-			FntPrint("A fatal error has occured\n~c700%s\n", error_msg);
-			Gfx_Flip();
-		#endif
+		return 0;
 	}
 }
-
-//Memory heap
-//#define MEM_STAT //This will enable the Mem_GetStat function which returns information about available memory in the heap
-
-#define MEM_IMPLEMENTATION
-#include "mem.h"
-#undef MEM_IMPLEMENTATION
-
-#ifndef PSXF_STDMEM
-static u8 malloc_heap[0x1B0000];
-#endif
 
 //Entry point
 int main(int argc, char **argv)
 {
 	//Remember arguments
-	my_argc = argc;
-	my_argv = argv;
-	
+
 	//Initialize system
-	PSX_Init();
+	//PSX_Init();
 	
-	Mem_Init((void*)malloc_heap, sizeof(malloc_heap));
+	//Mem_Init((void*)malloc_heap, sizeof(malloc_heap));
 	
-	IO_Init();
-	Audio_Init();
-	Gfx_Init();
-	Pad_Init();
-	
-	Timer_Init();
+    setupcallbacks();
+	triLogInit();
+	triMemoryInit();
+	triWavInit();
+	triInputInit();
 	
 	//Start game
 	gameloop = GameLoop_Battle;
 	Battle_Load();
 	
 	//Game loop
-	while (PSX_Running())
+	while (1)
 	{
 		//Prepare frame
-		Timer_Tick();
-		Pad_Update();
-		
-		#ifdef MEM_STAT
-			//Memory stats
-			size_t mem_used, mem_size, mem_max;
-			Mem_GetStat(&mem_used, &mem_size, &mem_max);
-			#ifndef MEM_BAR
-				FntPrint("mem: %08X/%08X (max %08X)\n", mem_used, mem_size, mem_max);
-			#endif
-		#endif
-		
+		triInputUpdate();
+
 		//Tick and draw game
 		switch (gameloop)
 		{
@@ -93,15 +88,9 @@ int main(int argc, char **argv)
 		}
 		
 		//Flip gfx buffers
-		Gfx_Flip();
+		//Gfx_Flip();
 	}
 	
 	//Deinitialize system
-	Pad_Quit();
-	Gfx_Quit();
-	Audio_Quit();
-	IO_Quit();
-	
-	PSX_Quit();
 	return 0;
 }

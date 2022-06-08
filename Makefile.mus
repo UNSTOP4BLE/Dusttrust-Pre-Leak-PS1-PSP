@@ -1,5 +1,0 @@
-all: \
-	iso/music/homicidal-lunacy/homicidal-lunacy.mus \
-
-iso/%.mus: iso/%.txt
-	tools/funkinmuspak/funkinmuspak $@ $<

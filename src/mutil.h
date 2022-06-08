@@ -7,15 +7,17 @@
 #ifndef PSXF_GUARD_MUTIL_H
 #define PSXF_GUARD_MUTIL_H
 
-#include "psx.h"
-
 #include "fixed.h"
-
+//Point type
+typedef struct
+{
+	short x, y;
+} POINT;
 //Math utility functions
-s16 MUtil_Sin(u8 x);
-s16 MUtil_Cos(u8 x);
-s16 smooth(u8 x);
-void MUtil_RotatePoint(POINT *p, s16 s, s16 c);
+int MUtil_Sin(int x);
+int MUtil_Cos(int x);
+int smooth(int x);
+void MUtil_RotatePoint(POINT *p, int s, int c);
 fixed_t MUtil_Pull(fixed_t a, fixed_t b, fixed_t t);
 
 #endif

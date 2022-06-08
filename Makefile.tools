@@ -1,9 +1,0 @@
-TOOLS = tools/funkinisopak tools/funkinarcpak tools/funkintimconv \
-	tools/psxavenc tools/funkinmuspak
-
-all: $(TOOLS)
-
-$(TOOLS):
-	cd $@ && $(MAKE)
-
-.PHONY: all $(TOOLS)
